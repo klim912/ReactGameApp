@@ -1,5 +1,5 @@
-import { useWishlist } from "./WishlistContext";
-import { useCart } from "./CartContext";
+import { useWishlist } from "../components/WishlistContext";
+import { useCart } from "../components/CartContext";
 import { Trash2 } from "react-feather";
 
 function Wishlist() {

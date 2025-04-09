@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useCart } from "../CartContext";
-import { useWishlist } from "../WishlistContext";
+import { useCart } from "./CartContext";
+import { useWishlist } from "./WishlistContext";
 import { Heart } from "react-feather";
 
 interface Game {

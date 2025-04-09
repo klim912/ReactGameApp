@@ -1,4 +1,4 @@
-import { useCart } from "./CartContext";
+import { useCart } from "../components/CartContext";
 import { Trash2 } from "react-feather";
 
 function CartPage() {

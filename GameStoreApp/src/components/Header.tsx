@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, X, Menu, ChevronDown, ShoppingCart } from "react-feather";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useCart } from "./CartContext";
@@ -19,9 +19,17 @@ function Header({ setSearchQuery }: HeaderProps) {
   const { cartItems } = useCart();
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setSearchQuery(inputValue);
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [inputValue,setSearchQuery]);
+
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
-    setSearchQuery(event.target.value);
+    //setSearchQuery(event.target.value);
   };
 
   const handleCartClick = () => {

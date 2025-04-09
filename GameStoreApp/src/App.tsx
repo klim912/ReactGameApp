@@ -3,16 +3,22 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from "react";
 import Header from "./components/Header";
-import Library from './components/Library';
-import Store from './components/StorePage/Store';
-import Friends from './components/Friends';
-import Sales from './components/Sales';
-import NotFound from "./components/NotFound";
-import Home from './components/Home';
-import CartPage from './components/CartPage';
-import WishList from './components/WishList';
+import Footer from './components/Footer';
+import Library from './pages/Library';
+import Store from './pages/Store';
+import Friends from './pages/Friends';
+import Sales from './pages/Sales';
+import NotFound from "./pages/NotFound";
+import Home from './pages/Home';
+import CartPage from './pages/CartPage';
+import WishList from './pages/WishList';
 import { CartProvider } from './components/CartContext';
 import { WishlistProvider } from "./components/WishlistContext";
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfUse from './pages/TermsOfUse';
+import FAQ from './pages/FAQ';
+import SupportPage from './pages/SupportPage';
+
 
 const queryClient = new QueryClient();
 
@@ -25,17 +31,26 @@ function App() {
        <CartProvider>
         <WishlistProvider>
               <Router>
+                <div className='min-h-screen flex flex-col'>
                 <Header setSearchQuery={setSearchQuery} />  
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/store" element={<Store searchQuery={searchQuery}/>} />
-                  <Route path="/library" element={<Library />} />
-                  <Route path="/friends" element={<Friends />} />
-                  <Route path="/sales" element={<Sales />} />
-                  <Route path="/wishlist" element={<WishList />} />
-                  <Route path="/cart" element={<CartPage />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
+                <main className='flex-grow'>
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/store" element={<Store searchQuery={searchQuery}/>} />
+                    <Route path="/library" element={<Library />} />
+                    <Route path="/friends" element={<Friends />} />
+                    <Route path="/sales" element={<Sales />} />
+                    <Route path="/wishlist" element={<WishList />} />
+                    <Route path="/cart" element={<CartPage />} />
+                    <Route path="*" element={<NotFound />} />
+                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                    <Route path="/terms-of-use" element={<TermsOfUse />} />
+                    <Route path="/faq" element={<FAQ />} />
+                    <Route path='/support' element={<SupportPage />} />
+                  </Routes>
+                  </main>
+                <Footer />
+                </div>
               </Router>
           </WishlistProvider>
         </CartProvider>
