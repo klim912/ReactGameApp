@@ -1,4 +1,4 @@
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, FormikHelpers, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import emailjs from "emailjs-com";
 import { motion } from "framer-motion";
@@ -8,7 +8,6 @@ const SupportPage = () => {
   const [sent, setSent] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
-
   const initialValues = {
     name: "",
     email: "",
@@ -17,44 +16,50 @@ const SupportPage = () => {
   };
 
   const validationSchema = Yup.object({
-    name: Yup.string().required("Вкажіть ім’я"),
-    email: Yup.string().email("Некоректна пошта").required("Вкажіть email"),
-    subject: Yup.string().required("Вкажіть тему"),
-    message: Yup.string().required("Напишіть повідомлення"),
+    name: Yup.string().required("ВКАЖІТЬ ІМ’Я"),
+    email: Yup.string().email("НЕКОРЕКТНА ПОШТА").required("ВКАЖІТЬ EMAIL"),
+    subject: Yup.string().required("ВКАЖІТЬ ТЕМУ"),
+    message: Yup.string().required("НАПИШІТЬ ПОВІДОМЛЕННЯ"),
   });
 
-  const handleSubmit = (values: typeof initialValues, { resetForm }: any) => {
-    setIsSending(true); // Показати спінер
-  
+  const handleSubmit = (
+    values: typeof initialValues,
+    helpers: FormikHelpers<{ name: string; message: string }>
+  ) => {
+    setIsSending(true);
+
     const serviceID = "service_adqn9uo";
     const templateID = "template_cz8xreq";
     const publicKey = "tMcR_SLbo1jZiNx9D";
-  
+
     emailjs
       .send(serviceID, templateID, values, publicKey)
       .then(() => {
         setSent(true);
-        resetForm();
+        helpers.resetForm();
       })
       .catch((error) => {
         console.error("Помилка надсилання:", error);
       })
       .finally(() => {
-        setIsSending(false); // Приховати спінер
+        setIsSending(false);
       });
   };
-  
 
   return (
-    <div className="bg-black mt-[160px] min-h-screen px-6 py-10 md:px-10 border-b-4 border-white">
+    <div className="bg-black mt-[190px] min-h-screen px-6 py-10 md:px-10 border-b-4 border-white ">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="max-w-3xl mx-auto border-l-4 border-lime-500 pl-6"
       >
-        <h1 className="text-3xl md:text-4xl font-bold mb-6 text-lime-500">
-          Служба підтримки
+        <h1
+          className="text-3xl md:text-4xl font-bold text-lime-400 mb-6 tracking-wider uppercase font-mono
+            relative before:content-[''] before:absolute before:inset-x-0 before:bottom-0 before:h-0.5 before:bg-lime-500/50
+            before:transform before:transition-transform before:duration-300 hover:before:scale-x-110"
+        >
+          СЛУЖБА ПІДТРИМКИ
         </h1>
 
         {!sent ? (
@@ -66,48 +71,56 @@ const SupportPage = () => {
             <Form className="space-y-6">
               {["name", "email", "subject", "message"].map((field) => (
                 <div key={field}>
-                  <label className="block text-white mb-1 capitalize">
-                    {field === "message" ? "Повідомлення" : field === "name" ? "Ім’я" : field}
+                  <label className="block text-lime-400 text-sm uppercase tracking-wide mb-1 font-mono">
+                    {field === "message"
+                      ? "ПОВІДОМЛЕННЯ"
+                      : field === "name"
+                      ? "ІМ’Я"
+                      : field === "email"
+                      ? "EMAIL"
+                      : "ТЕМА"}
                   </label>
                   {field !== "message" ? (
                     <Field
                       name={field}
                       type={field === "email" ? "email" : "text"}
-                      className="w-full px-4 py-2 bg-black border border-lime-500 text-white rounded outline-none focus:ring-2 focus:ring-lime-500"
+                      className="w-full px-4 py-2 bg-neutral-900/50 border border-lime-500/50 text-lime-400 rounded-sm text-sm uppercase font-mono
+                        focus:outline-none focus:border-lime-500 transition-all duration-300"
                     />
                   ) : (
                     <Field
                       as="textarea"
                       rows={5}
                       name="message"
-                      className="w-full px-4 py-2 bg-black border border-lime-500 text-white rounded outline-none focus:ring-2 focus:ring-lime-500"
+                      className="w-full px-4 py-2 bg-neutral-900/50 border border-lime-500/50 text-lime-400 rounded-sm text-sm uppercase font-mono
+                        resize-none focus:outline-none focus:border-lime-500 transition-all duration-300"
                     />
                   )}
                   <ErrorMessage
                     name={field}
                     component="div"
-                    className="text-red-400 mt-1 text-sm"
+                    className="text-red-500 text-xs mt-1 uppercase font-mono"
                   />
                 </div>
               ))}
 
-                <button
+              <button
                 type="submit"
                 disabled={isSending}
-                className="bg-lime-500 hover:bg-lime-600 text-black font-semibold px-6 py-2 rounded transition flex items-center justify-center"
-                >
+                className="bg-lime-500/10 border border-lime-500 text-lime-400 text-sm px-6 py-2 rounded-sm uppercase font-mono
+                  hover:bg-lime-500 hover:text-black transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
+              >
                 {isSending ? (
-                    <span className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></span>
+                  <span className="animate-spin rounded-full h-5 w-5 border-2 border-lime-400 border-t-transparent"></span>
                 ) : (
-                    "Надіслати"
+                  "НАДІСЛАТИ"
                 )}
-                </button>
-
+              </button>
             </Form>
           </Formik>
         ) : (
-          <div className="text-lime-400 mt-10 text-lg">
-            Ваше повідомлення успішно надіслано. Дякуємо!
+          <div className="text-lime-400 mt-10 text-lg uppercase tracking-wide font-mono">
+            ВАШЕ ПОВІДОМЛЕННЯ УСПІШНО НАДІСЛАНО. ДЯКУЄМО!
           </div>
         )}
       </motion.div>

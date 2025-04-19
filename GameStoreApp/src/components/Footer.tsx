@@ -1,55 +1,59 @@
 import { Link } from "react-router-dom";
 import { SiFacebook, SiDiscord, SiX } from "@icons-pack/react-simple-icons";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, FormikHelpers, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
 function Footer() {
   const currentYear = new Date().getFullYear();
 
   const validationSchema = Yup.object({
-    name: Yup.string().required("Вкажіть ім’я"),
-    message: Yup.string().required("Напишіть повідомлення"),
+    name: Yup.string().required("ВКАЖІТЬ ІМ’Я"),
+    message: Yup.string().required("НАПИШІТЬ ПОВІДОМЛЕННЯ"),
   });
 
   const handleSubmit = (
     values: { name: string; message: string },
-    { resetForm }: any
+    helpers: FormikHelpers<{ name: string; message: string }>
   ) => {
     console.log("Зворотній зв'язок:", values);
-    alert("Дякуємо за звернення!");
-    resetForm();
+    alert("ДЯКУЄМО ЗА ЗВЕРНЕННЯ!");
+    helpers.resetForm();
   };
 
   return (
-    <footer className="bg-black text-white px-6 py-10">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-sm">
+    <footer className="bg-neutral-950 text-white px-6 py-12 font-mono border-t border-lime-500/30">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-sm">
         <div>
-          <h3 className="font-semibold text-green-500 mb-2">Про нас</h3>
-          <p>
-            Game Vault — твоя ігрова платформа для відкриття нових світів,
-            зберігання бібліотеки та вигідних покупок.
+          <h3 className="text-lime-400 text-base uppercase tracking-wide mb-4">
+            ПРО НАС
+          </h3>
+          <p className="text-neutral-400 leading-relaxed">
+            GAME VAULT — ТВОЯ ІГРОВА ПЛАТФОРМА ДЛЯ ВІДКРИТТЯ НОВИХ СВІТІВ,
+            ЗБЕРІГАННЯ БІБЛІОТЕКИ ТА ВИГІДНИХ ПОКУПОК.
           </p>
         </div>
 
         <div>
-          <h3 className="font-semibold text-green-500 mb-2">Контакти</h3>
-
+          <h3 className="text-lime-400 text-base uppercase tracking-wide mb-4">
+            КОНТАКТИ
+          </h3>
           <Formik
             initialValues={{ name: "", message: "" }}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
           >
-            <Form className="flex flex-col gap-2">
+            <Form className="flex flex-col gap-4">
               <div>
                 <Field
                   name="name"
-                  placeholder="Ваше ім’я"
-                  className="px-2 py-1 rounded bg-gray-800 text-white placeholder-gray-400 border border-gray-700 focus:outline-none focus:ring-1 focus:ring-green-500 w-full"
+                  placeholder="ВАШЕ ІМ’Я"
+                  className="w-full px-3 py-2 bg-neutral-900/50 border border-lime-500/50 text-lime-400 rounded-sm placeholder-neutral-500 uppercase text-sm
+                    focus:outline-none focus:border-lime-500 transition-all duration-300"
                 />
                 <ErrorMessage
                   name="name"
                   component="div"
-                  className="text-red-400 text-sm mt-1"
+                  className="text-red-500 text-xs mt-1 uppercase"
                 />
               </div>
 
@@ -57,74 +61,107 @@ function Footer() {
                 <Field
                   as="textarea"
                   name="message"
-                  placeholder="Ваше повідомлення"
+                  placeholder="ВАШЕ ПОВІДОМЛЕННЯ"
                   rows={4}
-                  className="px-2 py-1 rounded w-full resize-none bg-gray-800 text-white placeholder-gray-400 border border-gray-700 focus:outline-none focus:ring-1 focus:ring-green-500"
+                  className="w-full px-3 py-2 bg-neutral-900/50 border border-lime-500/50 text-lime-400 rounded-sm placeholder-neutral-500 uppercase text-sm
+                    resize-none focus:outline-none focus:border-lime-500 transition-all duration-300"
                 />
                 <ErrorMessage
                   name="message"
                   component="div"
-                  className="text-red-400 text-sm mt-1"
+                  className="text-red-500 text-xs mt-1 uppercase"
                 />
               </div>
 
               <button
                 type="submit"
-                className="bg-green-500 text-black font-semibold py-1 rounded hover:bg-green-400 transition cursor-pointer"
+                className="bg-lime-500/10 border border-lime-500 text-lime-400 text-sm px-4 py-2 rounded-sm uppercase
+                  hover:bg-lime-500 hover:text-black transition-all duration-300 transform hover:scale-105"
               >
-                Надіслати
+                НАДІСЛАТИ
               </button>
             </Form>
           </Formik>
         </div>
 
         <div>
-          <h3 className="font-semibold text-green-500 mb-2">Політика</h3>
-          <ul className="space-y-1">
+          <h3 className="text-lime-400 text-base uppercase tracking-wide mb-4">
+            ПОЛІТИКА
+          </h3>
+          <ul className="space-y-2">
             <li>
-              <Link to="/privacy-policy" className="hover:text-green-400 underline">
-                Політика конфіденційності
+              <Link
+                to="/privacy-policy"
+                className="text-neutral-400 hover:text-lime-500 uppercase transition-colors duration-300"
+              >
+                ПОЛІТИКА КОНФІДЕНЦІЙНОСТІ
               </Link>
             </li>
             <li>
-              <Link to="/terms-of-use" className="hover:text-green-400 underline">
-                Умови використання
+              <Link
+                to="/terms-of-use"
+                className="text-neutral-400 hover:text-lime-500 uppercase transition-colors duration-300"
+              >
+                УМОВИ ВИКОРИСТАННЯ
               </Link>
             </li>
           </ul>
         </div>
 
         <div>
-          <h3 className="font-semibold text-green-500 mb-2">Допомога</h3>
-          <ul className="space-y-1">
+          <h3 className="text-lime-400 text-base uppercase tracking-wide mb-4">
+            ДОПОМОГА
+          </h3>
+          <ul className="space-y-2">
             <li>
-              <Link to="/faq" className="hover:text-green-400 underline">
+              <Link
+                to="/faq"
+                className="text-neutral-400 hover:text-lime-500 uppercase transition-colors duration-300"
+              >
                 FAQ
               </Link>
             </li>
             <li>
-              <Link to="/support" className="hover:text-green-400 underline">
-                Служба підтримки
+              <Link
+                to="/support"
+                className="text-neutral-400 hover:text-lime-500 uppercase transition-colors duration-300"
+              >
+                СЛУЖБА ПІДТРИМКИ
               </Link>
             </li>
           </ul>
         </div>
       </div>
 
-      <div className="flex justify-center gap-6 mt-8">
-        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
-          <SiFacebook size={24} className="hover:text-green-400 transition" />
+      <div className="flex justify-center gap-8 mt-10">
+        <a
+          href="https://facebook.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-lime-400 hover:text-lime-500 transition-transform duration-300 transform hover:scale-110"
+        >
+          <SiFacebook size={24} />
         </a>
-        <a href="https://x.com" target="_blank" rel="noopener noreferrer">
-          <SiX size={24} className="hover:text-green-400 transition" />
+        <a
+          href="https://x.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-lime-400 hover:text-lime-500 transition-transform duration-300 transform hover:scale-110"
+        >
+          <SiX size={24} />
         </a>
-        <a href="https://discord.com" target="_blank" rel="noopener noreferrer">
-          <SiDiscord size={24} className="hover:text-green-400 transition" />
+        <a
+          href="https://discord.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-lime-400 hover:text-lime-500 transition-transform duration-300 transform hover:scale-110"
+        >
+          <SiDiscord size={24} />
         </a>
       </div>
 
-      <p className="text-center text-gray-500 text-sm mt-6">
-        © {currentYear} Steam Clone. Усі права захищено.
+      <p className="text-center text-neutral-500 text-xs mt-8 uppercase tracking-wide">
+        © {currentYear} GAME VAULT. УСІ ПРАВА ЗАХИЩЕНО.
       </p>
     </footer>
   );

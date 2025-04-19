@@ -1,60 +1,94 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
-interface Game {
-  gameID: string;
+interface CartItem {
   title: string;
-  salePrice: number;
   thumb: string;
+  salePrice: string;
+  gameID: string;
   quantity: number;
 }
 
 interface CartContextType {
-  cartItems: Game[];
-  setCartItems: React.Dispatch<React.SetStateAction<Game[]>>;
-  addToCart: (game: Game) => void;
-  removeFromCart: (gameID: string) => void;
+  cartItems: CartItem[];
+  addToCart: (item: Omit<CartItem, "quantity">) => void;
+  removeFromCart: (title: string) => void;
+  setCartItems: React.Dispatch<React.SetStateAction<CartItem[]>>;
+  balance: number;
+  setBalance: (amount: number) => void;
+  validateCart: () => Promise<boolean>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [cartItems, setCartItems] = useState<Game[]>(() => {
-    const savedCart = localStorage.getItem("cartItems");
+export function CartProvider({ children }: { children: React.ReactNode }) {
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    const savedCart = localStorage.getItem("cart");
     return savedCart ? JSON.parse(savedCart) : [];
   });
 
+  const [balance, setBalance] = useState<number>(() => {
+    const savedBalance = localStorage.getItem("balance");
+    return savedBalance ? parseFloat(savedBalance) : 100;
+  });
+
   useEffect(() => {
-    localStorage.setItem("cartItems", JSON.stringify(cartItems));
+    localStorage.setItem("cart", JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const addToCart = (game: Game) => {
-    setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.gameID === game.gameID);
-      if (existingItem) {
-        return prevItems.map(item =>
-          item.gameID === game.gameID ? { ...item, quantity: item.quantity + 1 } : item
-        );
-      } else {
-        return [...prevItems, { ...game, quantity: 1 }];
+  useEffect(() => {
+    localStorage.setItem("balance", balance.toString());
+  }, [balance]);
+
+  const addToCart = (item: Omit<CartItem, "quantity">) => {
+    setCartItems((prevItems) => {
+      if (!prevItems.find((i) => i.title === item.title)) {
+        return [...prevItems, { ...item, quantity: 1 }];
       }
+      return prevItems;
     });
   };
 
-  const removeFromCart = (gameID: string) => {
-    setCartItems(prevItems => prevItems.filter(item => item.gameID !== gameID));
+  const removeFromCart = (title: string) => {
+    setCartItems((prevItems) =>
+      prevItems.filter((item) => item.title !== title)
+    );
+  };
+
+  const validateCart = async (): Promise<boolean> => {
+    try {
+      const response = await fetch("/api/validate-cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cartItems),
+      });
+      const result = await response.json();
+      return result.valid;
+    } catch {
+      return false;
+    }
   };
 
   return (
-    <CartContext.Provider value={{ cartItems, setCartItems, addToCart, removeFromCart }}>
+    <CartContext.Provider
+      value={{
+        cartItems,
+        addToCart,
+        removeFromCart,
+        setCartItems,
+        balance,
+        setBalance,
+        validateCart,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
-};
+}
 
-export const useCart = () => {
+export function useCart() {
   const context = useContext(CartContext);
   if (!context) {
-    throw new Error("useCart must be used within a CartProvider");
+    throw new Error("useCart використано за межами CartProvider");
   }
   return context;
-};
+}
