@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Search, X, Menu, ChevronDown, ShoppingCart } from "react-feather";
 import { NavLink, useNavigate, useSearchParams } from "react-router-dom";
 import { useCart } from "./CartContext";
+import { useAuth } from "../context/AuthContext";
+import { useTranslation } from "react-i18next";
 
 function Header() {
   const [inputValue, setInputValue] = useState<string>("");
@@ -9,12 +11,21 @@ function Header() {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  const toggleNav = () => setIsNavOpen(!isNavOpen);
-
+  const { t, i18n } = useTranslation();
+  const { userSettings } = useAuth();
   const navigate = useNavigate();
   const { cartItems } = useCart();
+  const { currentUser, userProfile, logout } = useAuth();
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+
+  useEffect(() => {
+    if (userSettings?.language) {
+      i18n.changeLanguage(userSettings.language);
+    }
+  }, [userSettings, i18n]);
+
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const toggleNav = () => setIsNavOpen(!isNavOpen);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -38,46 +49,77 @@ function Header() {
     navigate("/cart");
   };
 
+  const handleLogout = async () => {
+    console.log("Stage 33: Header logout initiated");
+    try {
+      await logout();
+      toggleMenu();
+      navigate("/");
+      console.log("Stage 34: Header logout successful");
+    } catch (err: any) {
+      console.error("Stage 35: Header logout error:", err.message);
+    }
+  };
+
   return (
     <header className="fixed top-0 left-0 w-full z-20 bg-neutral-950 font-mono text-white border-b border-lime-500/30">
       <div className="flex justify-end px-6 py-2">
-        <div
-          className="group flex items-center gap-2 bg-neutral-900/50 border border-lime-500/50 px-4 py-2 rounded-sm cursor-pointer
-            hover:bg-lime-500/20 hover:border-lime-500 transition-all duration-300"
-          onClick={toggleMenu}
-        >
-          <img
-            src="../src/assets/avatar.png"
-            alt="Avatar"
-            className="size-6 rounded-full border border-lime-500/50"
-          />
-          <span className="text-lime-400 text-sm tracking-wide uppercase">
-            NICKNAME
-          </span>
-          <ChevronDown className="text-lime-400 size-4 group-hover:rotate-180 transition-transform duration-300" />
-        </div>
+        {currentUser ? (
+          <div
+            className="group flex items-center gap-2 bg-neutral-900/50 border border-lime-500/50 px-4 py-2 rounded-sm cursor-pointer
+              hover:bg-lime-500/20 hover:border-lime-500 transition-all duration-300"
+            onClick={toggleMenu}
+          >
+            <img
+              src={userProfile?.avatar || "../src/assets/avatar.png"}
+              alt="Avatar"
+              className="size-6 rounded-full border border-lime-500/50"
+            />
+            <span className="text-lime-400 text-sm tracking-wide uppercase">
+              {userProfile?.displayName || t("user")}
+            </span>
+            <ChevronDown className="text-lime-400 size-4 group-hover:rotate-180 transition-transform duration-300" />
+          </div>
+        ) : (
+          <div className="flex gap-4">
+            <NavLink
+              to="/login"
+              className="bg-neutral-900/50 border border-lime-500/50 text-lime-400 text-sm px-4 py-2 rounded-sm uppercase tracking-wide
+                hover:bg-lime-500 hover:text-black transition-all duration-300"
+            >
+              {t("login")}
+            </NavLink>
+            <NavLink
+              to="/register"
+              className="bg-neutral-900/50 border border-lime-500/50 text-lime-400 text-sm px-4 py-2 rounded-sm uppercase tracking-wide
+                hover:bg-lime-500 hover:text-black transition-all duration-300"
+            >
+              {t("register")}
+            </NavLink>
+          </div>
+        )}
 
-        {isMenuOpen && (
+        {isMenuOpen && currentUser && (
           <div className="absolute top-12 right-6 bg-neutral-950/90 border border-lime-500/50 rounded-sm shadow-lg w-48 py-2 mt-2 z-20 backdrop-blur-md">
             <NavLink
               to="/profile"
               className="block px-4 py-2 text-lime-400 text-sm uppercase tracking-wide hover:bg-lime-500/20 transition-all duration-300"
               onClick={toggleMenu}
             >
-              ПРОФІЛЬ
+              {t("profile")}
             </NavLink>
             <NavLink
               to="/settings"
               className="block px-4 py-2 text-lime-400 text-sm uppercase tracking-wide hover:bg-lime-500/20 transition-all duration-300"
               onClick={toggleMenu}
             >
-              НАЛАШТУВАННЯ
+              {t("profile_settings")}
             </NavLink>
             <button
               className="block w-full text-left px-4 py-2 text-red-500 text-sm uppercase tracking-wide hover:bg-lime-500/20 transition-all duration-300"
-              onClick={toggleMenu}
+              onClick={handleLogout}
             >
-              ВИЙТИ
+              {t("logout")}
             </button>
           </div>
         )}
@@ -98,7 +140,7 @@ function Header() {
         <div className="flex-grow max-w-md mx-4 relative">
           <input
             type="text"
-            placeholder="ПОШУК..."
+            placeholder={t("search_placeholder")}
             value={inputValue}
             onChange={handleSearchChange}
             className="w-full px-4 py-2 bg-neutral-900/50 border border-lime-500/50 text-lime-400 text-sm rounded-sm
@@ -112,25 +154,25 @@ function Header() {
             to="/store"
             className="text-lime-400 text-sm uppercase tracking-wide hover:text-lime-500 transition-colors duration-300"
           >
-            МАГАЗИН
+            {t("store")}
           </NavLink>
           <NavLink
             to="/library"
             className="text-lime-400 text-sm uppercase tracking-wide hover:text-lime-500 transition-colors duration-300"
           >
-            БІБЛІОТЕКА
+            {t("library")}
           </NavLink>
           <NavLink
             to="/friends"
             className="text-lime-400 text-sm uppercase tracking-wide hover:text-lime-500 transition-colors duration-300"
           >
-            ДРУЗІ
+            {t("friends")}
           </NavLink>
           <NavLink
             to="/sales"
             className="text-lime-400 text-sm uppercase tracking-wide hover:text-lime-500 transition-colors duration-300"
           >
-            АКЦІЇ
+            {t("sales")}
           </NavLink>
         </div>
 
@@ -152,28 +194,28 @@ function Header() {
             className="text-2xl text-lime-400 uppercase tracking-wide hover:text-lime-500 transition-colors duration-300"
             onClick={toggleNav}
           >
-            МАГАЗИН
+            {t("store")}
           </NavLink>
           <NavLink
             to="/library"
             className="text-2xl text-lime-400 uppercase tracking-wide hover:text-lime-500 transition-colors duration-300"
             onClick={toggleNav}
           >
-            БІБЛІОТЕКА
+            {t("library")}
           </NavLink>
           <NavLink
             to="/friends"
             className="text-2xl text-lime-400 uppercase tracking-wide hover:text-lime-500 transition-colors duration-300"
             onClick={toggleNav}
           >
-            ДРУЗІ
+            {t("friends")}
           </NavLink>
           <NavLink
             to="/sales"
             className="text-2xl text-lime-400 uppercase tracking-wide hover:text-lime-500 transition-colors duration-300"
             onClick={toggleNav}
           >
-            АКЦІЇ
+            {t("sales")}
           </NavLink>
         </div>
       )}
@@ -184,7 +226,7 @@ function Header() {
           className="flex items-center gap-2 bg-neutral-900/50 border border-lime-500/50 text-lime-400 text-sm px-4 py-2 rounded-sm uppercase tracking-wide
             hover:bg-lime-500 hover:text-black transition-all duration-300 transform hover:scale-105"
         >
-          СПИСОК БАЖАНОГО
+          {t("wishlist")}
         </NavLink>
         <NavLink
           to="/cart"
@@ -193,7 +235,7 @@ function Header() {
           onClick={handleCartClick}
         >
           <ShoppingCart size={16} />
-          КОШИК
+          {t("cart")}
           {cartCount > 0 && (
             <span className="absolute -top-2 -right-2 bg-lime-500 text-black text-xs rounded-full px-2 py-1">
               {cartCount}

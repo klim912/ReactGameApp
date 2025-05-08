@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import { useWishlist } from "../components/WishlistContext";
 import { useCart } from "../components/CartContext";
 import { Star } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useAuth } from "../context/AuthContext";
 
 interface Review {
   gameTitle: string;
@@ -29,16 +31,25 @@ function GamePage() {
   });
   const [formError, setFormError] = useState<string | null>(null);
 
+  const { t, i18n } = useTranslation();
+  const { userSettings } = useAuth();
+
+  useEffect(() => {
+    if (userSettings?.language) {
+      i18n.changeLanguage(userSettings.language);
+    }
+  }, [userSettings, i18n]);
+
   useEffect(() => {
     if (!id) {
-      setError("Невалідний ID гри");
+      setError(t("invalid_game_id"));
       return;
     }
 
     fetch(`https://www.cheapshark.com/api/1.0/deals?id=${id}`)
       .then((res) => {
         if (!res.ok) {
-          throw new Error("Помилка завантаження даних гри");
+          throw new Error(t("error_loading_game"));
         }
         return res.json();
       })
@@ -49,10 +60,10 @@ function GamePage() {
         setError(null);
       })
       .catch((err) => {
-        console.error("Помилка завантаження:", err);
+        console.error(`${t("error_fetch")}:`, err);
         setError(err.message);
       });
-  }, [id]);
+  }, [id, t]);
 
   useEffect(() => {
     if (game && game.gameInfo && game.gameInfo.name) {
@@ -116,15 +127,15 @@ function GamePage() {
     const { userName, rating, comment } = newReview;
 
     if (!userName.trim()) {
-      setFormError("Введіть ім'я");
+      setFormError(t("error_name_empty"));
       return;
     }
     if (rating < 1 || rating > 5) {
-      setFormError("Виберіть оцінку від 1 до 5");
+      setFormError(t("error_invalid_rating"));
       return;
     }
     if (!comment.trim()) {
-      setFormError("Введіть коментар");
+      setFormError(t("error_comment_empty"));
       return;
     }
 
@@ -163,6 +174,8 @@ function GamePage() {
     );
   };
 
+  const locale = i18n.language === "en" ? "en-US" : i18n.language === "ru" ? "ru-RU" : "uk-UA";
+
   if (error) {
     return (
       <div className="flex justify-center items-center h-screen bg-black">
@@ -178,7 +191,7 @@ function GamePage() {
       <div className="flex justify-center items-center h-screen bg-black">
         <div className="flex items-center gap-3 text-white text-xl font-mono">
           <div className="w-2 h-2 bg-lime-500 animate-ping"></div>
-          <span>LOADING DATA...</span>
+          <span>{t("loading_data")}</span>
         </div>
       </div>
     );
@@ -196,14 +209,14 @@ function GamePage() {
               before:transform before:transition-transform before:duration-300 hover:before:scale-x-105
               "
           >
-            {game.gameInfo.name || "Unknown Game"}
+            {game.gameInfo.name || t("unknown_game")}
           </h1>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="relative group">
               <img
                 src={game.gameInfo.thumb || "https://via.placeholder.com/300"}
-                alt={game.gameInfo.name || "Game Image"}
+                alt={game.gameInfo.name || t("game_image")}
                 className="w-full rounded-md object-cover transition-transform duration-500 group-hover:brightness-110"
               />
               <div className="absolute inset-0 border-2 border-lime-500/20 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -211,26 +224,26 @@ function GamePage() {
 
             <div className="flex flex-col justify-center space-y-4 text-sm tracking-wide">
               <div className="flex justify-between items-center py-2 border-b border-lime-500/20">
-                <span className="text-lime-400">ЦІНА</span>
+                <span className="text-lime-400">{t("price")}</span>
                 <span className="text-2xl text-green-400 font-bold">
                   {game.gameInfo.salePrice || "N/A"} $
                 </span>
               </div>
 
               <div className="flex justify-between items-center py-2 border-b border-lime-500/20">
-                <span className="text-lime-400">ЗВИЧАЙНА ЦІНА</span>
+                <span className="text-lime-400">{t("retail_price")}</span>
                 <span className="line-through text-neutral-600">
                   {game.gameInfo.retailPrice || "N/A"} $
                 </span>
               </div>
 
               <div className="flex justify-between items-center py-2 border-b border-lime-500/20">
-                <span className="text-lime-400">РЕЙТИНГ STEAM</span>
+                <span className="text-lime-400">{t("steam_rating")}</span>
                 <span>{game.gameInfo.steamRatingText || "N/A"}</span>
               </div>
 
               <div className="flex justify-between items-center py-2 border-b border-lime-500/20">
-                <span className="text-lime-400">ОЦІНКА</span>
+                <span className="text-lime-400">{t("metacritic_score")}</span>
                 <span>
                   {game.gameInfo.metacriticScore
                     ? `${game.gameInfo.metacriticScore}/100`
@@ -246,7 +259,7 @@ function GamePage() {
                   } text-lime-400 font-semibold py-3 rounded-md
                     hover:bg-lime-500 hover:text-black transition-all duration-300 transform hover:scale-105`}
                 >
-                  {isWishlisted ? "ВИДАЛИТИ З БАЖАНОГО" : "ДОДАТИ В БАЖАНЕ"}
+                  {isWishlisted ? t("remove_from_wishlist") : t("add_to_wishlist")}
                 </button>
 
                 <button
@@ -256,7 +269,7 @@ function GamePage() {
                   } text-lime-400 font-semibold py-3 rounded-md
                     hover:bg-lime-500 hover:text-black transition-all duration-300 transform hover:scale-105`}
                 >
-                  {isInCart ? "ВИДАЛИТИ З КОШИКА" : "ДОДАТИ В КОШИК"}
+                  {isInCart ? t("remove_from_cart") : t("add_to_cart")}
                 </button>
 
                 <a
@@ -268,7 +281,7 @@ function GamePage() {
                   className="block text-center bg-lime-500/10 border border-lime-500 text-lime-400 font-semibold py-3 rounded-md
                     hover:bg-lime-500 hover:text-black transition-all duration-300 transform hover:scale-105"
                 >
-                  ПЕРЕГЛЯНУТИ В STEAM
+                  {t("view_on_steam")}
                 </a>
               </div>
             </div>
@@ -279,15 +292,15 @@ function GamePage() {
               className="text-2xl font-bold text-lime-400 mb-6 text-center tracking-wider relative
                 before:content-[''] before:absolute before:inset-x-0 before:bottom-0 before:h-0.5 before:bg-lime-500/50"
             >
-              ВІДГУКИ КОРИСТУВАЧІВ
+              {t("user_reviews")}
             </h2>
 
             <div className="bg-neutral-900/50 border border-lime-500/30 rounded-md p-6 mb-8">
-              <h3 className="text-lg text-lime-400 mb-4">Залишити відгук</h3>
+              <h3 className="text-lg text-lime-400 mb-4">{t("leave_review")}</h3>
               <form onSubmit={handleReviewSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm text-lime-400 mb-1">
-                    Ім'я
+                    {t("review_name")}
                   </label>
                   <input
                     type="text"
@@ -296,13 +309,13 @@ function GamePage() {
                       setNewReview({ ...newReview, userName: e.target.value })
                     }
                     className="w-full p-2 bg-neutral-950/50 border border-lime-500/50 text-lime-400 rounded-md focus:outline-none focus:border-lime-500"
-                    placeholder="Введіть ваше ім'я"
+                    placeholder={t("enter_name_placeholder")}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm text-lime-400 mb-1">
-                    Оцінка
+                    {t("rating")}
                   </label>
                   <div className="flex space-x-2">
                     {[1, 2, 3, 4, 5].map((star) => (
@@ -331,7 +344,7 @@ function GamePage() {
 
                 <div>
                   <label className="block text-sm text-lime-400 mb-1">
-                    Коментар
+                    {t("comment")}
                   </label>
                   <textarea
                     value={newReview.comment}
@@ -339,7 +352,7 @@ function GamePage() {
                       setNewReview({ ...newReview, comment: e.target.value })
                     }
                     className="w-full p-2 bg-neutral-950/50 border border-lime-500/50 text-lime-400 rounded-md focus:outline-none focus:border-lime-500"
-                    placeholder="Ваш відгук про гру"
+                    placeholder={t("enter_comment_placeholder")}
                     rows={4}
                   />
                 </div>
@@ -353,7 +366,7 @@ function GamePage() {
                   className="w-full bg-lime-500/10 border border-lime-500 text-lime-400 font-semibold py-2 rounded-md
                     hover:bg-lime-500 hover:text-black transition-all duration-300 transform hover:scale-105"
                 >
-                  НАДІСЛАТИ ВІДГУК
+                  {t("submit_review")}
                 </button>
               </form>
             </div>
@@ -361,7 +374,7 @@ function GamePage() {
             <div>
               {reviews.length === 0 ? (
                 <p className="text-center text-neutral-500">
-                  Відгуків поки немає
+                  {t("no_reviews")}
                 </p>
               ) : (
                 <div className="space-y-4">
@@ -375,14 +388,11 @@ function GamePage() {
                           {review.userName}
                         </span>
                         <span className="text-neutral-500 text-sm">
-                          {new Date(review.timestamp).toLocaleDateString(
-                            "uk-UA",
-                            {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            }
-                          )}
+                          {new Date(review.timestamp).toLocaleDateString(locale, {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
                         </span>
                       </div>
                       <div className="mb-2">{renderStars(review.rating)}</div>

@@ -1,16 +1,27 @@
+import { useEffect } from "react";
 import { useWishlist } from "../components/WishlistContext";
 import { useCart } from "../components/CartContext";
 import { Trash2 } from "react-feather";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { useAuth } from "../context/AuthContext";
 
 function Wishlist() {
   const wishlistContext = useWishlist();
   const cartContext = useCart();
+  const { t, i18n } = useTranslation();
+  const { userSettings } = useAuth();
+
+  useEffect(() => {
+    if (userSettings?.language) {
+      i18n.changeLanguage(userSettings.language);
+    }
+  }, [userSettings, i18n]);
 
   if (!wishlistContext || !cartContext) {
     return (
       <div className="flex justify-center items-center h-screen bg-black font-mono text-red-500 text-lg">
-        ПОМИЛКА: КОНТЕКСТ НЕ ЗНАЙДЕНО
+        {t("context_error")}
       </div>
     );
   }
@@ -18,7 +29,14 @@ function Wishlist() {
   const { wishlist, removeFromWishlist } = wishlistContext;
   const { addToCart } = cartContext;
 
-  const handleBuy = (game: any) => {
+  interface BuyGame {
+    title: string;
+    thumb: string;
+    salePrice: string;
+    gameID: string;
+  }
+
+  const handleBuy = (game: BuyGame) => {
     addToCart({
       title: game.title,
       thumb: game.thumb,
@@ -36,12 +54,12 @@ function Wishlist() {
             before:content-[''] before:absolute before:inset-x-0 before:bottom-0 before:h-0.5 before:bg-lime-500/50
             before:transform before:transition-transform before:duration-300 hover:before:scale-x-110"
         >
-          СПИСОК БАЖАНОГО
+          {t("wishlist_title")}
         </h2>
 
         {wishlist.length === 0 ? (
           <p className="text-center text-lg text-neutral-500 tracking-wide">
-            СПИСОК БАЖАНОГО ПОРОЖНІЙ
+            {t("wishlist_empty")}
           </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -56,13 +74,13 @@ function Wishlist() {
                   to={`/game/${game.gameID}`}
                   className="text-base md:text-lg font-semibold text-lime-400 text-center p-4 tracking-wide line-clamp-2 h-16 mb-4 block"
                 >
-                  {game.title || "Unknown Game"}
+                  {game.title || t("unknown_game")}
                 </Link>
 
                 <div className="relative w-full h-48 bg-black flex justify-center items-center">
                   <img
                     src={game.thumb}
-                    alt={game.title || "Game Image"}
+                    alt={t("game_image")}
                     loading="lazy"
                     className="max-w-full max-h-full object-contain transition-transform duration-500 group-hover:brightness-110"
                   />
@@ -79,7 +97,7 @@ function Wishlist() {
                       className="bg-lime-500/10 border border-lime-500 text-lime-400 text-sm px-4 py-2 rounded-sm
                         hover:bg-lime-500 hover:text-black transition-all duration-300 transform hover:scale-110"
                     >
-                      КУПИТИ
+                      {t("buy_now")}
                     </button>
                     <button
                       onClick={() => removeFromWishlist(game.title)}

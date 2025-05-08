@@ -1,9 +1,20 @@
+import { useEffect } from "react";
 import { useCart } from "../components/CartContext";
 import { Trash2 } from "react-feather";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { useAuth } from "../context/AuthContext";
 
 function CartPage() {
   const { cartItems, setCartItems, removeFromCart } = useCart();
+  const { t, i18n } = useTranslation();
+  const { userSettings } = useAuth();
+
+  useEffect(() => {
+    if (userSettings?.language) {
+      i18n.changeLanguage(userSettings.language);
+    }
+  }, [userSettings, i18n]);
 
   const updateQuantity = (title: string, quantity: number) => {
     if (quantity < 1) return;
@@ -31,12 +42,12 @@ function CartPage() {
             before:content-[''] before:absolute before:inset-x-0 before:bottom-0 before:h-0.5 before:bg-lime-500/50
             before:transform before:transition-transform before:duration-300 hover:before:scale-x-110"
         >
-          ВАШ КОШИК
+          {t("cart_title")}
         </h2>
 
         {cartItems.length === 0 ? (
           <p className="text-center text-lg text-neutral-500 tracking-wide">
-            ВАШ КОШИК ПОРОЖНІЙ
+            {t("cart_empty")}
           </p>
         ) : (
           <>
@@ -46,19 +57,19 @@ function CartPage() {
                   <thead className="bg-neutral-900/50 border-b border-lime-500/20">
                     <tr>
                       <th className="py-3 px-4 text-left text-lime-400 text-sm tracking-wide">
-                        ЗОБРАЖЕННЯ
+                        {t("cart_image")}
                       </th>
                       <th className="py-3 px-4 text-left text-lime-400 text-sm tracking-wide">
-                        ГРА
+                        {t("cart_game")}
                       </th>
                       <th className="py-3 px-4 text-left text-lime-400 text-sm tracking-wide">
-                        КІЛЬКІСТЬ
+                        {t("cart_quantity")}
                       </th>
                       <th className="py-3 px-4 text-left text-lime-400 text-sm tracking-wide">
-                        ЦІНА
+                        {t("cart_price")}
                       </th>
                       <th className="py-3 px-4 text-left text-lime-400 text-sm tracking-wide">
-                        ЗАГАЛЬНА ЦІНА
+                        {t("cart_total_price")}
                       </th>
                       <th className="py-3 px-4 text-left"></th>
                     </tr>
@@ -72,13 +83,13 @@ function CartPage() {
                         <td className="py-4 px-4">
                           <img
                             src={item.thumb || "https://via.placeholder.com/64"}
-                            alt={item.title || "Game Image"}
+                            alt={t("game_image")}
                             loading="lazy"
                             className="w-16 h-16 object-contain rounded-sm border border-lime-500/20"
                           />
                         </td>
                         <td className="py-4 px-4 text-sm text-lime-400 line-clamp-2">
-                          {item.title || "Unknown Game"}
+                          {item.title || t("unknown_game")}
                         </td>
                         <td className="py-4 px-4">
                           <input
@@ -115,7 +126,7 @@ function CartPage() {
                 </table>
               </div>
               <div className="text-right p-4 text-xl md:text-2xl font-bold text-green-400 border-t border-lime-500/20">
-                ЗАГАЛЬНА СУМА: ${calculateTotal()}
+                {t("cart_total")}: ${calculateTotal()}
               </div>
             </div>
             <div className="mt-6 text-right">
@@ -124,7 +135,7 @@ function CartPage() {
                 className="inline-block bg-lime-500/10 border border-lime-500 text-lime-400 font-semibold py-3 px-6 rounded-md
                   hover:bg-lime-500 hover:text-black transition-all duration-300 transform hover:scale-105"
               >
-                ПЕРЕЙТИ ДО ОПЛАТИ
+                {t("proceed_to_checkout")}
               </Link>
             </div>
           </>

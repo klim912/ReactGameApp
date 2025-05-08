@@ -3,10 +3,21 @@ import * as Yup from "yup";
 import emailjs from "emailjs-com";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useAuth } from "../context/AuthContext";
+import { useEffect } from "react";
 
 const SupportPage = () => {
   const [sent, setSent] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const { t, i18n } = useTranslation();
+  const { userSettings } = useAuth();
+
+  useEffect(() => {
+    if (userSettings?.language) {
+      i18n.changeLanguage(userSettings.language);
+    }
+  }, [userSettings, i18n]);
 
   const initialValues = {
     name: "",
@@ -16,10 +27,12 @@ const SupportPage = () => {
   };
 
   const validationSchema = Yup.object({
-    name: Yup.string().required("ВКАЖІТЬ ІМ’Я"),
-    email: Yup.string().email("НЕКОРЕКТНА ПОШТА").required("ВКАЖІТЬ EMAIL"),
-    subject: Yup.string().required("ВКАЖІТЬ ТЕМУ"),
-    message: Yup.string().required("НАПИШІТЬ ПОВІДОМЛЕННЯ"),
+    name: Yup.string().required(t("name_required")),
+    email: Yup.string()
+      .email(t("email_invalid"))
+      .required(t("email_required")),
+    subject: Yup.string().required(t("subject_required")),
+    message: Yup.string().required(t("message_required")),
   });
 
   const handleSubmit = (
@@ -47,7 +60,7 @@ const SupportPage = () => {
   };
 
   return (
-    <div className="bg-black mt-[190px] min-h-screen px-6 py-10 md:px-10 border-b-4 border-white ">
+    <div className="bg-black mt-[190px] min-h-screen px-6 py-10 md:px-10 border-b-4 border-white">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -59,7 +72,7 @@ const SupportPage = () => {
             relative before:content-[''] before:absolute before:inset-x-0 before:bottom-0 before:h-0.5 before:bg-lime-500/50
             before:transform before:transition-transform before:duration-300 hover:before:scale-x-110"
         >
-          СЛУЖБА ПІДТРИМКИ
+          {t("support")}
         </h1>
 
         {!sent ? (
@@ -72,13 +85,7 @@ const SupportPage = () => {
               {["name", "email", "subject", "message"].map((field) => (
                 <div key={field}>
                   <label className="block text-lime-400 text-sm uppercase tracking-wide mb-1 font-mono">
-                    {field === "message"
-                      ? "ПОВІДОМЛЕННЯ"
-                      : field === "name"
-                      ? "ІМ’Я"
-                      : field === "email"
-                      ? "EMAIL"
-                      : "ТЕМА"}
+                    {t(field)}
                   </label>
                   {field !== "message" ? (
                     <Field
@@ -113,14 +120,14 @@ const SupportPage = () => {
                 {isSending ? (
                   <span className="animate-spin rounded-full h-5 w-5 border-2 border-lime-400 border-t-transparent"></span>
                 ) : (
-                  "НАДІСЛАТИ"
+                  t("submit")
                 )}
               </button>
             </Form>
           </Formik>
         ) : (
           <div className="text-lime-400 mt-10 text-lg uppercase tracking-wide font-mono">
-            ВАШЕ ПОВІДОМЛЕННЯ УСПІШНО НАДІСЛАНО. ДЯКУЄМО!
+            {t("support_success")}
           </div>
         )}
       </motion.div>
