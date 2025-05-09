@@ -1,11 +1,12 @@
-// /src/pages/Home.tsx
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay, EffectCube, Pagination } from "swiper/modules";
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { Star, ArrowRight, Shield, Rocket, Gamepad } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useAuth } from "../context/AuthContext";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -25,7 +26,7 @@ const fetchGamesByRating = async (): Promise<Game[]> => {
     "https://www.cheapshark.com/api/1.0/deals?storeID=1&sortBy=Metacritic"
   );
   if (!response.ok) {
-    throw new Error("Помилка завантаження ігор за рейтингом");
+    throw new Error("error_loading_games_by_rating");
   }
   return response.json();
 };
@@ -35,7 +36,7 @@ const fetchGamesBySales = async (): Promise<Game[]> => {
     "https://www.cheapshark.com/api/1.0/deals?storeID=1&sortBy=Savings"
   );
   if (!response.ok) {
-    throw new Error("Помилка завантаження ігор за продажами");
+    throw new Error("error_loading_games_by_sales");
   }
   return response.json();
 };
@@ -61,6 +62,15 @@ const AnimatedSection: React.FC<{
 };
 
 function Home() {
+  const { t, i18n } = useTranslation();
+  const { userSettings } = useAuth();
+
+  useEffect(() => {
+    if (userSettings?.language) {
+      i18n.changeLanguage(userSettings.language);
+    }
+  }, [userSettings, i18n]);
+
   const {
     data: gamesByRating,
     error: ratingError,
@@ -84,20 +94,20 @@ function Home() {
   const bannerImages = [
     {
       src: "/src/assets/R.jpg",
-      title: "Відкрийте нові світи!",
-      cta: "Переглянути магазин",
+      title: t("banner_1_title"),
+      cta: t("banner_1_cta"),
       link: "/store",
     },
     {
       src: "/src/assets/R.jpg",
-      title: "Епічні пригоди чекають!",
-      cta: "Дізнайтесь більше",
+      title: t("banner_2_title"),
+      cta: t("banner_2_cta"),
       link: "/sales",
     },
     {
       src: "/src/assets/R.jpg",
-      title: "Знижки до 70%!",
-      cta: "Скористатись акцією",
+      title: t("banner_3_title"),
+      cta: t("banner_3_cta"),
       link: "/sales",
     },
   ];
@@ -168,7 +178,7 @@ function Home() {
             className="text-3xl md:text-4xl font-bold text-lime-400 mb-10 text-center tracking-wider uppercase relative
             before:content-[''] before:absolute before:inset-x-0 before:bottom-0 before:h-0.5 before:bg-lime-500/50"
           >
-            АКЦІЇ
+            {t("sales_section_title")}
           </h2>
           <motion.div
             whileHover={{ scale: 1.05 }}
@@ -176,17 +186,17 @@ function Home() {
             className="bg-neutral-950/50 border border-lime-500/30 rounded-lg p-6 text-center "
           >
             <h3 className="text-2xl font-semibold text-lime-400 mb-4">
-              Осінній розпродаж!
+              {t("fall_sale_title")}
             </h3>
             <p className="text-neutral-300 mb-4">
-              Знижки до 80% на ваші улюблені ігри!
+              {t("fall_sale_description")}
             </p>
             <Link
               to="/sales"
               className="inline-block bg-lime-500/10 border border-lime-500 text-lime-400 font-semibold py-2 px-6 rounded-md
                 hover:bg-lime-500 hover:text-black transition-all duration-300 uppercase tracking-wide"
             >
-              Переглянути акції
+              {t("view_sales_cta")}
             </Link>
           </motion.div>
         </AnimatedSection>
@@ -206,11 +216,9 @@ function Home() {
               <Gamepad size={48} className="text-lime-400" />
             </motion.div>
             <div className="text-lime-400 text-center md:text-left max-w-xl">
-              <h3 className="text-2xl font-semibold mb-3">Грай без обмежень</h3>
+              <h3 className="text-2xl font-semibold mb-3">{t("play_without_limits_title")}</h3>
               <p className="text-zinc-400 leading-relaxed">
-                Забудь про DRM, ключі та зайву тяганину. Отримуй повний доступ
-                до улюблених ігор миттєво після покупки. Насолоджуйся чистим
-                геймінгом без обмежень і без набридливих запускаторів.
+                {t("play_without_limits_description")}
               </p>
             </div>
           </motion.div>
@@ -229,14 +237,9 @@ function Home() {
               <Rocket size={48} className="text-lime-400" />
             </motion.div>
             <div className="text-lime-400 text-center md:text-left max-w-xl">
-              <h3 className="text-2xl font-semibold mb-3">
-                Швидкі завантаження
-              </h3>
+              <h3 className="text-2xl font-semibold mb-3">{t("fast_downloads_title")}</h3>
               <p className="text-zinc-400 leading-relaxed">
-                Наші сервери забезпечують надшвидке завантаження ігор — ти не
-                встигнеш зробити чай, а гра вже встановлена. Ми використовуємо
-                сучасну CDN-інфраструктуру, аби твій час ішов на гру, а не на
-                очікування.
+                {t("fast_downloads_description")}
               </p>
             </div>
           </motion.div>
@@ -255,11 +258,9 @@ function Home() {
               <Shield size={48} className="text-lime-400" />
             </motion.div>
             <div className="text-lime-400 text-center md:text-left max-w-xl">
-              <h3 className="text-2xl font-semibold mb-3">100% безпечно</h3>
+              <h3 className="text-2xl font-semibold mb-3">{t("secure_title")}</h3>
               <p className="text-zinc-400 leading-relaxed">
-                Ми дбаємо про твою безпеку. Кожна транзакція шифрується, а наша
-                підтримка завжди поруч, щоб вирішити будь-яке питання. Купуй
-                спокійно, знаючи, що твої дані та гроші в надійних руках.
+                {t("secure_description")}
               </p>
             </div>
           </motion.div>
@@ -270,19 +271,19 @@ function Home() {
             className="text-3xl md:text-4xl font-bold text-lime-400 mb-10 text-center tracking-wider uppercase relative
             before:content-[''] before:absolute before:inset-x-0 before:bottom-0 before:h-0.5 before:bg-lime-500/50"
           >
-            НАЙПОПУЛЯРНІШІ ЗА РЕЙТИНГОМ
+            {t("top_rated_games_title")}
           </h2>
           {ratingLoading && (
             <div className="flex justify-center items-center h-64">
               <div className="flex items-center gap-3 text-lime-400 text-xl font-mono">
                 <div className="w-2 h-2 bg-lime-500 animate-ping"></div>
-                <span>ЗАВАНТАЖЕННЯ...</span>
+                <span>{t("loading")}</span>
               </div>
             </div>
           )}
           {ratingError && (
             <div className="text-center text-red-500 text-lg font-mono">
-              <p>{(ratingError as Error).message}</p>
+              <p>{t((ratingError as Error).message)}</p>
             </div>
           )}
           {gamesByRating && (
@@ -301,7 +302,7 @@ function Home() {
             >
               {gamesByRating.map((game) => (
                 <SwiperSlide key={game.dealID}>
-                  <div className="bg-neutral-950/50 border border-lime-500/30 rounded-lg p-4  hover:scale-98 transition-all duration-300 ">
+                  <div className="bg-neutral-950/50 border border-lime-500/30 rounded-lg p-4 hover:scale-98 transition-all duration-300">
                     <Link to={`/game/${game.dealID}`}>
                       <div className="grid place-content-center">
                         <img
@@ -325,18 +326,18 @@ function Home() {
                         <span className="text-neutral-300 text-sm">
                           {game.metacriticScore
                             ? `${game.metacriticScore}/100`
-                            : "N/A"}
+                            : t("na")}
                         </span>
                       </div>
                       <p className="text-green-400 text-lg font-bold">
-                        ${game.salePrice || "N/A"}
+                        ${game.salePrice || t("na")}
                       </p>
                       <Link
                         to={`/game/${game.dealID}`}
                         className="block text-center bg-lime-500/10 border border-lime-500 text-lime-400 font-semibold py-2 rounded-md
                           hover:bg-lime-500 hover:text-black transition-all duration-300 uppercase tracking-wide"
                       >
-                        Переглянути
+                        {t("view_game_cta")}
                       </Link>
                     </div>
                   </div>
@@ -351,23 +352,23 @@ function Home() {
             className="text-3xl md:text-4xl font-bold text-lime-400 mb-10 mt-20 text-center tracking-wider uppercase relative
             before:content-[''] before:absolute before:inset-x-0 before:bottom-0 before:h-0.5 before:bg-lime-500/50"
           >
-            ЧОМУ ОБРАТИ НАС
+            {t("why_choose_us_title")}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-30">
             {[
               {
-                title: "Широкий вибір ігор",
-                description: "Тисячі ігор від інді до AAA-тайтлів.",
+                title: t("wide_selection_title"),
+                description: t("wide_selection_description"),
                 icon: <Star size={24} className="text-lime-400" />,
               },
               {
-                title: "Найкращі ціни",
-                description: "Знижки та акції щотижня.",
+                title: t("best_prices_title"),
+                description: t("best_prices_description"),
                 icon: <ArrowRight size={24} className="text-lime-400" />,
               },
               {
-                title: "Миттєва доставка",
-                description: "Отримуйте ключі одразу після покупки.",
+                title: t("instant_delivery_title"),
+                description: t("instant_delivery_description"),
                 icon: <Star size={24} className="text-lime-400" />,
               },
             ].map((feature, index) => (
@@ -394,19 +395,19 @@ function Home() {
             className="text-3xl md:text-4xl font-bold text-lime-400 mb-10 text-center tracking-wider uppercase relative
             before:content-[''] before:absolute before:inset-x-0 before:bottom-0 before:h-0.5 before:bg-lime-500/50"
           >
-            НАЙПОПУЛЯРНІШІ ЗА ПРОДАЖАМИ
+            {t("top_selling_games_title")}
           </h2>
           {salesLoading && (
             <div className="flex justify-center items-center h-64">
               <div className="flex items-center gap-3 text-lime-400 text-xl font-mono">
                 <div className="w-2 h-2 bg-lime-500 animate-ping"></div>
-                <span>ЗАВАНТАЖЕННЯ...</span>
+                <span>{t("loading")}</span>
               </div>
             </div>
           )}
           {salesError && (
             <div className="text-center text-red-500 text-lg font-mono">
-              <p>{(salesError as Error).message}</p>
+              <p>{t((salesError as Error).message)}</p>
             </div>
           )}
           {gamesBySales && (
@@ -425,7 +426,7 @@ function Home() {
             >
               {gamesBySales.map((game) => (
                 <SwiperSlide key={game.dealID}>
-                  <div className="bg-neutral-950/50 border border-lime-500/30 rounded-lg p-4  hover:scale-99 transition-all duration-300">
+                  <div className="bg-neutral-950/50 border border-lime-500/30 rounded-lg p-4 hover:scale-99 transition-all duration-300">
                     <Link to={`/game/${game.dealID}`}>
                       <div className="grid place-content-center">
                         <img
@@ -449,18 +450,18 @@ function Home() {
                         <span className="text-neutral-300 text-sm">
                           {game.metacriticScore
                             ? `${game.metacriticScore}/100`
-                            : "N/A"}
+                            : t("na")}
                         </span>
                       </div>
                       <p className="text-green-400 text-lg font-bold">
-                        ${game.salePrice || "N/A"}
+                        ${game.salePrice || t("na")}
                       </p>
                       <Link
                         to={`/game/${game.dealID}`}
                         className="block text-center bg-lime-500/10 border border-lime-500 text-lime-400 font-semibold py-2 rounded-md
                           hover:bg-lime-500 hover:text-black transition-all duration-300 uppercase tracking-wide"
                       >
-                        Переглянути
+                        {t("view_game_cta")}
                       </Link>
                     </div>
                   </div>

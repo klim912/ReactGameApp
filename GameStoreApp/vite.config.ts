@@ -8,4 +8,13 @@ export default defineConfig({
     react(),
     tailwindcss()
   ],
+  server: {
+    port: 5173,
+    open: true,
+    cors: {
+      origin: ["http://localhost:5173", "https://steamcommunity.com"],
+      methods: ["GET", "POST", "OPTIONS"],
+      allowedHeaders: ["Content-Type"],
+    },
+  },
 })

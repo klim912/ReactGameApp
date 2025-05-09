@@ -2,21 +2,32 @@ import { Link } from "react-router-dom";
 import { SiFacebook, SiDiscord, SiX } from "@icons-pack/react-simple-icons";
 import { Formik, FormikHelpers, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { useTranslation } from "react-i18next";
+import { useAuth } from "../context/AuthContext";
+import { useEffect } from "react";
 
 function Footer() {
+  const { t, i18n } = useTranslation();
+  const { userSettings } = useAuth();
   const currentYear = new Date().getFullYear();
 
+  useEffect(() => {
+    if (userSettings?.language) {
+      i18n.changeLanguage(userSettings.language);
+    }
+  }, [userSettings, i18n]);
+
   const validationSchema = Yup.object({
-    name: Yup.string().required("ВКАЖІТЬ ІМ’Я"),
-    message: Yup.string().required("НАПИШІТЬ ПОВІДОМЛЕННЯ"),
+    name: Yup.string().required(t("name_required")),
+    message: Yup.string().required(t("message_required")),
   });
 
   const handleSubmit = (
     values: { name: string; message: string },
     helpers: FormikHelpers<{ name: string; message: string }>
   ) => {
-    console.log("Зворотній зв'язок:", values);
-    alert("ДЯКУЄМО ЗА ЗВЕРНЕННЯ!");
+    console.log("Feedback submitted:", values);
+    alert(t("feedback_success"));
     helpers.resetForm();
   };
 
@@ -25,17 +36,16 @@ function Footer() {
       <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-sm">
         <div>
           <h3 className="text-lime-400 text-base uppercase tracking-wide mb-4">
-            ПРО НАС
+            {t("about_us")}
           </h3>
           <p className="text-neutral-400 leading-relaxed">
-            GAME VAULT — ТВОЯ ІГРОВА ПЛАТФОРМА ДЛЯ ВІДКРИТТЯ НОВИХ СВІТІВ,
-            ЗБЕРІГАННЯ БІБЛІОТЕКИ ТА ВИГІДНИХ ПОКУПОК.
+            {t("about_us_description")}
           </p>
         </div>
 
         <div>
           <h3 className="text-lime-400 text-base uppercase tracking-wide mb-4">
-            КОНТАКТИ
+            {t("contacts")}
           </h3>
           <Formik
             initialValues={{ name: "", message: "" }}
@@ -46,7 +56,7 @@ function Footer() {
               <div>
                 <Field
                   name="name"
-                  placeholder="ВАШЕ ІМ’Я"
+                  placeholder={t("name_placeholder")}
                   className="w-full px-3 py-2 bg-neutral-900/50 border border-lime-500/50 text-lime-400 rounded-sm placeholder-neutral-500 uppercase text-sm
                     focus:outline-none focus:border-lime-500 transition-all duration-300"
                 />
@@ -61,7 +71,7 @@ function Footer() {
                 <Field
                   as="textarea"
                   name="message"
-                  placeholder="ВАШЕ ПОВІДОМЛЕННЯ"
+                  placeholder={t("message_placeholder")}
                   rows={4}
                   className="w-full px-3 py-2 bg-neutral-900/50 border border-lime-500/50 text-lime-400 rounded-sm placeholder-neutral-500 uppercase text-sm
                     resize-none focus:outline-none focus:border-lime-500 transition-all duration-300"
@@ -78,7 +88,7 @@ function Footer() {
                 className="bg-lime-500/10 border border-lime-500 text-lime-400 text-sm px-4 py-2 rounded-sm uppercase
                   hover:bg-lime-500 hover:text-black transition-all duration-300 transform hover:scale-105"
               >
-                НАДІСЛАТИ
+                {t("submit")}
               </button>
             </Form>
           </Formik>
@@ -86,7 +96,7 @@ function Footer() {
 
         <div>
           <h3 className="text-lime-400 text-base uppercase tracking-wide mb-4">
-            ПОЛІТИКА
+            {t("policy")}
           </h3>
           <ul className="space-y-2">
             <li>
@@ -94,7 +104,7 @@ function Footer() {
                 to="/privacy-policy"
                 className="text-neutral-400 hover:text-lime-500 uppercase transition-colors duration-300"
               >
-                ПОЛІТИКА КОНФІДЕНЦІЙНОСТІ
+                {t("privacy_policy")}
               </Link>
             </li>
             <li>
@@ -102,7 +112,7 @@ function Footer() {
                 to="/terms-of-use"
                 className="text-neutral-400 hover:text-lime-500 uppercase transition-colors duration-300"
               >
-                УМОВИ ВИКОРИСТАННЯ
+                {t("terms_of_use")}
               </Link>
             </li>
           </ul>
@@ -110,7 +120,7 @@ function Footer() {
 
         <div>
           <h3 className="text-lime-400 text-base uppercase tracking-wide mb-4">
-            ДОПОМОГА
+            {t("help")}
           </h3>
           <ul className="space-y-2">
             <li>
@@ -118,7 +128,7 @@ function Footer() {
                 to="/faq"
                 className="text-neutral-400 hover:text-lime-500 uppercase transition-colors duration-300"
               >
-                FAQ
+                {t("faq")}
               </Link>
             </li>
             <li>
@@ -126,7 +136,7 @@ function Footer() {
                 to="/support"
                 className="text-neutral-400 hover:text-lime-500 uppercase transition-colors duration-300"
               >
-                СЛУЖБА ПІДТРИМКИ
+                {t("support")}
               </Link>
             </li>
           </ul>
@@ -161,7 +171,7 @@ function Footer() {
       </div>
 
       <p className="text-center text-neutral-500 text-xs mt-8 uppercase tracking-wide">
-        © {currentYear} GAME VAULT. УСІ ПРАВА ЗАХИЩЕНО.
+        {t("copyright", { year: currentYear })}
       </p>
     </footer>
   );

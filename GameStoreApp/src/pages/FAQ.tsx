@@ -1,6 +1,18 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
+import { useAuth } from "../context/AuthContext";
+import { useEffect } from "react";
 
 const FAQ = () => {
+  const { t, i18n } = useTranslation();
+  const { userSettings } = useAuth();
+
+  useEffect(() => {
+    if (userSettings?.language) {
+      i18n.changeLanguage(userSettings.language);
+    }
+  }, [userSettings, i18n]);
+
   return (
     <div className="bg-black mt-[190px] border-b-4 border-white min-h-screen px-6 py-10 md:px-10">
       <motion.div
@@ -14,47 +26,42 @@ const FAQ = () => {
             relative before:content-[''] before:absolute before:inset-x-0 before:bottom-0 before:h-0.5 before:bg-lime-500/50
             before:transform before:transition-transform before:duration-300 hover:before:scale-x-110"
         >
-          ЧАСТІ ЗАПИТАННЯ (FAQ)
+          {t("faq_title")}
         </h1>
 
         <section className="mb-8">
           <h2 className="text-xl text-lime-400 uppercase tracking-wide mb-2 font-mono">
-            ЯК КУПИТИ ГРУ НА GAMEVAULT?
+            {t("faq_how_to_buy")}
           </h2>
           <p className="text-neutral-400 text-sm leading-relaxed font-mono">
-            ВИБЕРІТЬ ГРУ В МАГАЗИНІ, НАТИСНІТЬ «КУПИТИ», ПІСЛЯ ЧОГО ОФОРМІТЬ
-            ПОКУПКУ В КОШИКУ. ОПЛАТУ МОЖНА ЗДІЙСНИТИ КАРТКОЮ АБО ЧЕРЕЗ
-            ОНЛАЙН-ГАМАНЦІ.
+            {t("faq_how_to_buy_desc")}
           </p>
         </section>
 
         <section className="mb-8">
           <h2 className="text-xl text-lime-400 uppercase tracking-wide mb-2 font-mono">
-            ЯК ДОДАТИ ГРУ ДО СПИСКУ БАЖАНОГО?
+            {t("faq_add_to_wishlist")}
           </h2>
           <p className="text-neutral-400 text-sm leading-relaxed font-mono">
-            НА СТОРІНЦІ ГРИ НАТИСНІТЬ КНОПКУ «ДОДАТИ В БАЖАНЕ». ВИ ЗМОЖЕТЕ
-            ПЕРЕГЛЯНУТИ ОБРАНІ ІГРИ В РОЗДІЛІ «СПИСОК БАЖАНОГО».
+            {t("faq_add_to_wishlist_desc")}
           </p>
         </section>
 
         <section className="mb-8">
           <h2 className="text-xl text-lime-400 uppercase tracking-wide mb-2 font-mono">
-            ЩО РОБИТИ, ЯКЩО Я НЕ ОТРИМАВ ГРУ ПІСЛЯ ПОКУПКИ?
+            {t("faq_not_received")}
           </h2>
           <p className="text-neutral-400 text-sm leading-relaxed font-mono">
-            ПЕРЕВІРТЕ ІСТОРІЮ ЗАМОВЛЕНЬ У ВАШОМУ ПРОФІЛІ. ЯКЩО ПРОБЛЕМА НЕ
-            ВИРІШИЛАСЬ — ЗВЕРНІТЬСЯ ДО СЛУЖБИ ПІДТРИМКИ ЧЕРЕЗ РОЗДІЛ «КОНТАКТИ».
+            {t("faq_not_received_desc")}
           </p>
         </section>
 
         <section className="mb-8">
           <h2 className="text-xl text-lime-400 uppercase tracking-wide mb-2 font-mono">
-            ЧИ МОЖУ Я ПОВЕРНУТИ ГРОШІ ЗА ГРУ?
+            {t("faq_refund")}
           </h2>
           <p className="text-neutral-400 text-sm leading-relaxed font-mono">
-            ТАК, ПРОТЯГОМ 14 ДНІВ З МОМЕНТУ ПОКУПКИ, ЗА УМОВИ, ЩО ГРА НЕ БУЛА
-            ЗАВАНТАЖЕНА АБО ЗІГРАНА БІЛЬШЕ НІЖ 2 ГОДИНИ.
+            {t("faq_refund_desc")}
           </p>
         </section>
       </motion.div>

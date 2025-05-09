@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import GameCard from "./GameCard";
+import { useTranslation } from "react-i18next";
+import { useAuth } from "../context/AuthContext";
 
 type GameListProps = {
   searchParams: URLSearchParams;
@@ -8,6 +10,15 @@ type GameListProps = {
 function GameList({ searchParams }: GameListProps) {
   const [games, setGames] = useState<any[]>([]);
   const [visible, setVisible] = useState(8);
+
+  const { t, i18n } = useTranslation();
+  const { userSettings } = useAuth();
+
+  useEffect(() => {
+    if (userSettings?.language) {
+      i18n.changeLanguage(userSettings.language);
+    }
+  }, [userSettings, i18n]);
 
   useEffect(() => {
     const search = searchParams.get("search")?.toLowerCase() || "";
@@ -42,12 +53,12 @@ function GameList({ searchParams }: GameListProps) {
 
         setGames(sorted);
       })
-      .catch((err) => console.error("Помилка:", err));
-  }, [searchParams]);
+      .catch((err) => console.error(`${t("error_fetch")}:`, err));
+  }, [searchParams, t]);
 
   return (
     <div>
-      <p className="text-gray-600 mb-4">Знайдено ігор: {games.length}</p>
+      <p className="text-gray-600 mb-4">{t("games_found", { count: games.length })}</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {games.slice(0, visible).map((game) => (
@@ -60,16 +71,16 @@ function GameList({ searchParams }: GameListProps) {
           <button
             onClick={() => setVisible((v) => v + 8)}
             className="px-6 py-2 bg-neutral-900/50 border border-lime-500/50 text-lime-400 text-sm rounded-sm uppercase tracking-wide font-mono
-        hover:bg-lime-500 hover:text-black transition-all duration-300 transform hover:scale-105"
+              hover:bg-lime-500 hover:text-black transition-all duration-300 transform hover:scale-105"
           >
-            ЗАВАНТАЖИТИ ЩЕ
+            {t("load_more")}
           </button>
         </div>
       )}
 
       {games.length === 0 && (
         <div className="text-center text-gray-500 mt-10">
-          Нічого не знайдено
+          {t("no_results")}
         </div>
       )}
     </div>
