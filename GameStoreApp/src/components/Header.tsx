@@ -1,16 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, X, Menu, ChevronDown, ShoppingCart } from "react-feather";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useSearchParams } from "react-router-dom";
 import { useCart } from "./CartContext";
 
-interface HeaderProps {
-  setSearchQuery: (query: string) => void;
-}
-
-function Header({ setSearchQuery }: HeaderProps) {
+function Header() {
   const [inputValue, setInputValue] = useState<string>("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const toggleNav = () => setIsNavOpen(!isNavOpen);
@@ -19,9 +16,22 @@ function Header({ setSearchQuery }: HeaderProps) {
   const { cartItems } = useCart();
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const newParams = new URLSearchParams(searchParams);
+      if (inputValue) {
+        newParams.set("search", inputValue);
+      } else {
+        newParams.delete("search");
+      }
+      setSearchParams(newParams);
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [inputValue, searchParams, setSearchParams]);
+
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
-    setSearchQuery(event.target.value);
   };
 
   const handleCartClick = () => {
@@ -29,153 +39,169 @@ function Header({ setSearchQuery }: HeaderProps) {
   };
 
   return (
-    <div className="flex flex-col fixed top-0 left-0 w-full z-10 bg-black">
-      <div className="h-[30px] m-3 bg-black flex justify-end relative">
+    <header className="fixed top-0 left-0 w-full z-20 bg-neutral-950 font-mono text-white border-b border-lime-500/30">
+      <div className="flex justify-end px-6 py-2">
         <div
-          className="flex flex-row bg-green-500 gap-1 mr-[30px] py-3 items-center cursor-pointer rounded-r-lg hover:scale-101 hover:shadow-lg transition duration-200"
+          className="group flex items-center gap-2 bg-neutral-900/50 border border-lime-500/50 px-4 py-2 rounded-sm cursor-pointer
+            hover:bg-lime-500/20 hover:border-lime-500 transition-all duration-300"
           onClick={toggleMenu}
         >
           <img
             src="../src/assets/avatar.png"
-            className="size-[30px] bg-yellow-700"
+            alt="Avatar"
+            className="size-6 rounded-full border border-lime-500/50"
           />
-          <div className="text-black text-xl">nickname</div>
-          <ChevronDown className="text-black" />
+          <span className="text-lime-400 text-sm tracking-wide uppercase">
+            NICKNAME
+          </span>
+          <ChevronDown className="text-lime-400 size-4 group-hover:rotate-180 transition-transform duration-300" />
         </div>
 
         {isMenuOpen && (
-          <div className="absolute top-full right-0 bg-black text-white border border-green-500 rounded-md shadow-xl w-48 p-2 mt-2 z-20">
+          <div className="absolute top-12 right-6 bg-neutral-950/90 border border-lime-500/50 rounded-sm shadow-lg w-48 py-2 mt-2 z-20 backdrop-blur-md">
             <NavLink
               to="/profile"
-              className="block p-2 hover:bg-green-500 rounded-md transition duration-200 hover:text-black"
+              className="block px-4 py-2 text-lime-400 text-sm uppercase tracking-wide hover:bg-lime-500/20 transition-all duration-300"
+              onClick={toggleMenu}
             >
-              Профіль
+              ПРОФІЛЬ
             </NavLink>
             <NavLink
               to="/settings"
-              className="block p-2 hover:bg-green-500 rounded-md transition duration-200 hover:text-black"
+              className="block px-4 py-2 text-lime-400 text-sm uppercase tracking-wide hover:bg-lime-500/20 transition-all duration-300"
+              onClick={toggleMenu}
             >
-              Налаштування
+              НАЛАШТУВАННЯ
             </NavLink>
-            <button className="block w-full p-2 hover:bg-green-500 rounded-md transition duration-200 text-red-500 hover:text-black">
-              Вийти
+            <button
+              className="block w-full text-left px-4 py-2 text-red-500 text-sm uppercase tracking-wide hover:bg-lime-500/20 transition-all duration-300"
+              onClick={toggleMenu}
+            >
+              ВИЙТИ
             </button>
           </div>
         )}
       </div>
 
-      <div className="flex items-center justify-between px-4 md:px-[100px] h-[60px]">
+      <div className="flex items-center justify-between px-4 md:px-12 py-4">
         <NavLink to="/" className="flex items-center gap-2">
-          <img src="../src/assets/logo.png" className="size-[50px]" />
-          <div className="text-white text-xl">
-            Game <span className="text-green-500 font-bold">Vault</span>
+          <img
+            src="../src/assets/logo.png"
+            alt="Logo"
+            className="size-10 border border-lime-500/50 rounded-sm"
+          />
+          <div className="text-xl tracking-wide uppercase">
+            GAME <span className="text-lime-400 font-bold">VAULT</span>
           </div>
         </NavLink>
 
-        <div className="flex-grow max-w-[300px] mx-4 relative">
+        <div className="flex-grow max-w-md mx-4 relative">
           <input
             type="text"
-            placeholder="Search"
+            placeholder="ПОШУК..."
             value={inputValue}
             onChange={handleSearchChange}
-            className="w-full px-4 py-2 bg-black border border-white rounded-full focus:outline-none focus:ring-2 focus:border-green-500 placeholder-white transition duration-300 text-green-400"
+            className="w-full px-4 py-2 bg-neutral-900/50 border border-lime-500/50 text-lime-400 text-sm rounded-sm
+              focus:outline-none focus:border-lime-500 placeholder-neutral-500 uppercase tracking-wide transition-all duration-300"
           />
-          <Search className="text-white absolute right-3 top-3 cursor-pointer hover:text-green-500 transition duration-200" />
+          <Search className="absolute right-3 top-2.5 text-lime-400 size-5 hover:text-lime-500 cursor-pointer transition-colors duration-300" />
         </div>
 
-        <button className="block lg:hidden text-white" onClick={toggleNav}>
-          {isNavOpen ? <X size={30} /> : <Menu size={30} />}
-        </button>
-
-        <div className="hidden lg:flex gap-10">
+        <div className="hidden lg:flex items-center gap-8">
           <NavLink
             to="/store"
-            className="text-white text-xl hover:text-green-500"
+            className="text-lime-400 text-sm uppercase tracking-wide hover:text-lime-500 transition-colors duration-300"
           >
-            Магазин
+            МАГАЗИН
           </NavLink>
           <NavLink
             to="/library"
-            className="text-white text-xl hover:text-green-500"
+            className="text-lime-400 text-sm uppercase tracking-wide hover:text-lime-500 transition-colors duration-300"
           >
-            Бібліотека
+            БІБЛІОТЕКА
           </NavLink>
           <NavLink
             to="/friends"
-            className="text-white text-xl hover:text-green-500"
+            className="text-lime-400 text-sm uppercase tracking-wide hover:text-lime-500 transition-colors duration-300"
           >
-            Друзі
+            ДРУЗІ
           </NavLink>
           <NavLink
             to="/sales"
-            className="text-white text-xl hover:text-green-500"
+            className="text-lime-400 text-sm uppercase tracking-wide hover:text-lime-500 transition-colors duration-300"
           >
-            Акції
+            АКЦІЇ
           </NavLink>
         </div>
+
+        <button className="lg:hidden text-lime-400" onClick={toggleNav}>
+          {isNavOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
       </div>
 
       {isNavOpen && (
-        <div className="fixed inset-0 bg-black text-white z-20 flex flex-col items-center justify-center space-y-6">
+        <div className="fixed inset-0 bg-neutral-950/95 text-white z-30 flex flex-col items-center justify-center space-y-8 backdrop-blur-md">
           <button
-            className="absolute top-5 right-5 text-white"
+            className="absolute top-5 right-5 text-lime-400"
             onClick={toggleNav}
           >
             <X size={30} />
           </button>
           <NavLink
             to="/store"
-            className="text-xl hover:text-green-500"
+            className="text-2xl text-lime-400 uppercase tracking-wide hover:text-lime-500 transition-colors duration-300"
             onClick={toggleNav}
           >
-            Магазин
+            МАГАЗИН
           </NavLink>
           <NavLink
             to="/library"
-            className="text-xl hover:text-green-500"
+            className="text-2xl text-lime-400 uppercase tracking-wide hover:text-lime-500 transition-colors duration-300"
             onClick={toggleNav}
           >
-            Бібліотека
+            БІБЛІОТЕКА
           </NavLink>
           <NavLink
             to="/friends"
-            className="text-xl hover:text-green-500"
+            className="text-2xl text-lime-400 uppercase tracking-wide hover:text-lime-500 transition-colors duration-300"
             onClick={toggleNav}
           >
-            Друзі
+            ДРУЗІ
           </NavLink>
           <NavLink
             to="/sales"
-            className="text-xl hover:text-green-500"
+            className="text-2xl text-lime-400 uppercase tracking-wide hover:text-lime-500 transition-colors duration-300"
             onClick={toggleNav}
           >
-            Акції
+            АКЦІЇ
           </NavLink>
         </div>
       )}
 
-      <div className="bg-neutral-200 flex flex-row justify-end gap-2.5 py-2 pr-2 border-b-2">
+      <div className="flex justify-end gap-4 px-6 py-3 border-t border-lime-500/20">
         <NavLink
           to="/wishlist"
-          className="bg-white w-45 h-8 font-medium text-black border border-black flex items-center justify-center gap-1 rounded-xs cursor-pointer relative transition-all duration-300 ease-in-out hover:scale-101 hover:shadow-lg"
+          className="flex items-center gap-2 bg-neutral-900/50 border border-lime-500/50 text-lime-400 text-sm px-4 py-2 rounded-sm uppercase tracking-wide
+            hover:bg-lime-500 hover:text-black transition-all duration-300 transform hover:scale-105"
         >
-          Список бажаного
+          СПИСОК БАЖАНОГО
         </NavLink>
         <NavLink
           to="/cart"
-          className="bg-black w-40 h-8 font-medium text-white border border-black flex items-center justify-center gap-1 rounded-xs cursor-pointer relative transition-all duration-300 ease-in-out hover:scale-101 hover:shadow-lg"
+          className="relative flex items-center gap-2 bg-neutral-900/50 border border-lime-500/50 text-lime-400 text-sm px-4 py-2 rounded-sm uppercase tracking-wide
+            hover:bg-lime-500 hover:text-black transition-all duration-300 transform hover:scale-105"
           onClick={handleCartClick}
         >
-          <ShoppingCart size={18} />
-          Кошик
+          <ShoppingCart size={16} />
+          КОШИК
           {cartCount > 0 && (
-            <span className="absolute top-2 right-4 bg-white text-black text-xs rounded-full px-2">
+            <span className="absolute -top-2 -right-2 bg-lime-500 text-black text-xs rounded-full px-2 py-1">
               {cartCount}
             </span>
           )}
         </NavLink>
       </div>
-    </div>
+    </header>
   );
 }
 
